@@ -19,6 +19,10 @@ public class ClientHandler extends Thread {
         return authenticated;
     }
 
+    public String getCurrentUser() {
+        return currentUser;
+    }
+
     public void sendMessage(String message) {
         try {
             toClient.writeUTF(message);
@@ -156,7 +160,7 @@ public class ClientHandler extends Thread {
         toClient.writeUTF("SUCCESS|Deposit successful. New Balance: $" + newBalance);
         toClient.flush();
 
-        BankServer.broadcastUpdate("UPDATE|" + currentUser + " deposited $" + amount);
+        BankServer.broadcastUpdate("UPDATE|" + currentUser + " deposited $" + amount, this);
     }
 
     private void handleWithdrawal(Account account, double amount, String timestamp) throws IOException {
@@ -182,7 +186,7 @@ public class ClientHandler extends Thread {
         toClient.writeUTF("SUCCESS|Withdrawal successful. New Balance: $" + newBalance);
         toClient.flush();
 
-        BankServer.broadcastUpdate("UPDATE|" + currentUser + " withdrew $" + amount);
+        BankServer.broadcastUpdate("UPDATE|" + currentUser + " withdrew $" + amount, this);
     }
 
     private void handleTransfer(Account fromAccount, String toUsername, double amount, String timestamp) throws IOException {
@@ -230,7 +234,7 @@ public class ClientHandler extends Thread {
         toClient.writeUTF("SUCCESS|Transfer successful. New Balance: $" + newFromBalance);
         toClient.flush();
 
-        BankServer.broadcastUpdate("UPDATE|" + currentUser + " transferred $" + amount + " to " + toUsername);
+        BankServer.broadcastUpdate("UPDATE|" + currentUser + " transferred $" + amount + " to " + toUsername, this);
     }
 
     private void handleHistory(Account account) throws IOException {

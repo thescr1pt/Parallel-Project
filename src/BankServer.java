@@ -45,9 +45,9 @@ public class BankServer {
         return account != null && account.getPassword().equals(password);
     }
 
-    public static void broadcastUpdate(String message) {
+    public static void broadcastUpdate(String message, ClientHandler sender) {
         for (ClientHandler client : connectedClients) {
-            if (client.isAuthenticated()) {
+            if (client.isAuthenticated() && client != sender) {
                 client.sendMessage(message);
             }
         }

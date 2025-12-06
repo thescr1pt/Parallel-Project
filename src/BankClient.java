@@ -10,6 +10,7 @@ public class BankClient {
     private DataOutputStream toServer;
     private Scanner scanner;
     private String username;
+    private volatile boolean waitingForResponse = false;
 
     public BankClient() {
         scanner = new Scanner(System.in);
@@ -122,6 +123,7 @@ public class BankClient {
     }
 
     private void checkBalance() throws IOException {
+        waitingForResponse = true;
         toServer.writeUTF("BALANCE");
         toServer.flush();
 
@@ -131,6 +133,7 @@ public class BankClient {
         if (parts[0].equals("BALANCE")) {
             System.out.println("\nCurrent Balance: $" + parts[1]);
         }
+        waitingForResponse = false;
     }
 
     private void deposit() throws IOException {
@@ -139,6 +142,7 @@ public class BankClient {
         
         try {
             double amount = Double.parseDouble(amountStr);
+            waitingForResponse = true;
             toServer.writeUTF("DEPOSIT|" + amount);
             toServer.flush();
 
@@ -150,6 +154,7 @@ public class BankClient {
             } else {
                 System.out.println("\nError: " + parts[1]);
             }
+            waitingForResponse = false;
         } catch (NumberFormatException e) {
             System.out.println("Invalid amount format.");
         }
@@ -161,6 +166,7 @@ public class BankClient {
         
         try {
             double amount = Double.parseDouble(amountStr);
+            waitingForResponse = true;
             toServer.writeUTF("WITHDRAW|" + amount);
             toServer.flush();
 
@@ -172,6 +178,7 @@ public class BankClient {
             } else {
                 System.out.println("\nError: " + parts[1]);
             }
+            waitingForResponse = false;
         } catch (NumberFormatException e) {
             System.out.println("Invalid amount format.");
         }
@@ -186,6 +193,7 @@ public class BankClient {
         
         try {
             double amount = Double.parseDouble(amountStr);
+            waitingForResponse = true;
             toServer.writeUTF("TRANSFER|" + recipient + "|" + amount);
             toServer.flush();
 
@@ -197,12 +205,14 @@ public class BankClient {
             } else {
                 System.out.println("\nError: " + parts[1]);
             }
+            waitingForResponse = false;
         } catch (NumberFormatException e) {
             System.out.println("Invalid amount format.");
         }
     }
 
     private void viewHistory() throws IOException {
+        waitingForResponse = true;
         toServer.writeUTF("HISTORY");
         toServer.flush();
 
@@ -214,6 +224,7 @@ public class BankClient {
             System.out.println(parts[1]);
             System.out.println("---------------------------");
         }
+        waitingForResponse = false;
     }
 
     class ServerListener extends Thread {
@@ -221,14 +232,19 @@ public class BankClient {
         public void run() {
             try {
                 while (!Thread.interrupted()) {
-                    String message = fromServer.readUTF();
-                    if (message.startsWith("UPDATE|")) {
-                        String update = message.substring(7);
-                        System.out.println("\n[Server Update] " + update);
-                        System.out.print("Choose an option: ");
+                    // Only read if we're not waiting for a command response and data is available
+                    if (!waitingForResponse && socket.getInputStream().available() > 0) {
+                        String message = fromServer.readUTF();
+                        if (message.startsWith("UPDATE|")) {
+                            String update = message.substring(7);
+                            System.out.println("\n[Server Update] " + update);
+                            System.out.print("Choose an option: ");
+                        }
+                    } else {
+                        Thread.sleep(50);
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 // Connection closed or interrupted
             }
         }
