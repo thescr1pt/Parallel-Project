@@ -1,2 +1,3 @@
-/Project_Phase1.txt
-/README.md
+*.txt
+*/reference/
+/Phase2Web/target/
