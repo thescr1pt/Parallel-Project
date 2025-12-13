@@ -1,3 +1,4 @@
 *.txt
 */reference/
+*/bin/
 /Phase2Web/target/
