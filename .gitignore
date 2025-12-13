@@ -2,3 +2,11 @@
 */reference/
 */bin/
 /Phase2Web/target/
+/Phase2Web/references/Web/calClient/build/
+/Phase2Web/references/Web/calClient/dist/
+/Phase2Web/references/Web/calClient/nbproject/private/
+/Phase2Web/references/Web/calculatorServer/build/
+/Phase2Web/references/Web/calculatorServer/dist/
+/Phase2Web/references/Web/calculatorServer/nbproject/private/
+/Phase2Web/nbproject/private/
+/Phase2Web/build/
