@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class BankClient {
     private static final String SERVER_ADDRESS = "127.0.0.1";
     private static final int SERVER_PORT = 1099;
-    
+
     private BankService bankService;
     private TransactionService transactionService;
     private Scanner scanner;
@@ -21,29 +21,23 @@ public class BankClient {
 
     public void start() {
         try {
-            // Connect to RMI registry
             Registry registry = LocateRegistry.getRegistry(SERVER_ADDRESS, SERVER_PORT);
-            
-            // Lookup services
+
             bankService = (BankService) registry.lookup("BankService");
             transactionService = (TransactionService) registry.lookup("TransactionService");
-            
+
             System.out.println("Connected to Bank RMI Server at " + SERVER_ADDRESS + ":" + SERVER_PORT);
 
-            // Authenticate
             if (!authenticate()) {
                 System.out.println("Authentication failed. Exiting...");
                 return;
             }
 
-            // Register for updates
             ClientCallback callback = new ClientCallbackImpl();
             transactionService.registerClient(username, callback);
 
-            // Main menu loop
             showMenu();
 
-            // Cleanup
             transactionService.unregisterClient(username);
             System.out.println("Disconnected from server.");
 
@@ -193,7 +187,7 @@ public class BankClient {
 
     private void viewHistory() throws Exception {
         List<String> history = transactionService.getTransactionHistory(username);
-        
+
         System.out.println("\n--- Transaction History ---");
         if (history.isEmpty()) {
             System.out.println("No transactions yet.");

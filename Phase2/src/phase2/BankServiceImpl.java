@@ -47,7 +47,7 @@ public class BankServiceImpl extends UnicastRemoteObject implements BankService 
         if (initialBalance < 0) {
             return "ERROR|Initial balance cannot be negative";
         }
-        
+
         accounts.put(key, new Account(username, password, initialBalance));
         System.out.println("New account created: " + username + " with balance $" + initialBalance);
         return "SUCCESS|Account created successfully. Balance: $" + initialBalance;
@@ -75,14 +75,13 @@ public class BankServiceImpl extends UnicastRemoteObject implements BankService 
 
         double newBalance = account.getBalance() + amount;
         account.setBalance(newBalance);
-        
+
         String timestamp = getTimestamp();
         String transaction = timestamp + " - Deposit: $" + amount + ". New Balance: $" + newBalance;
         account.addTransaction(transaction);
 
         System.out.println(username + " - " + transaction);
 
-        // Broadcast to other clients
         transactionService.broadcastUpdate(username + " deposited $" + amount, username);
 
         return "SUCCESS|Deposit successful. New Balance: $" + newBalance;
@@ -112,7 +111,6 @@ public class BankServiceImpl extends UnicastRemoteObject implements BankService 
 
         System.out.println(username + " - " + transaction);
 
-        // Broadcast to other clients
         transactionService.broadcastUpdate(username + " withdrew $" + amount, username);
 
         return "SUCCESS|Withdrawal successful. New Balance: $" + newBalance;
@@ -157,7 +155,6 @@ public class BankServiceImpl extends UnicastRemoteObject implements BankService 
                 ". " + fromUsername + " Balance: $" + newFromBalance +
                 ", " + toUsername + " Balance: $" + newToBalance);
 
-        // Broadcast to other clients
         transactionService.broadcastUpdate(fromUsername + " transferred $" + amount + " to " + toUsername, fromUsername);
 
         return "SUCCESS|Transfer successful. New Balance: $" + newFromBalance;

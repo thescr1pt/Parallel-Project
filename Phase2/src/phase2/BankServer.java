@@ -5,15 +5,12 @@ import java.rmi.registry.Registry;
 public class BankServer {
     public static void main(String[] args) {
         try {
-            // Create registry on port 1099
             Registry registry = LocateRegistry.createRegistry(1099);
 
-            // Create service implementations
             TransactionServiceImpl transactionService = new TransactionServiceImpl();
             BankServiceImpl bankService = new BankServiceImpl(transactionService);
             transactionService.setBankService(bankService);
 
-            // Bind services to registry
             registry.rebind("BankService", bankService);
             registry.rebind("TransactionService", transactionService);
 

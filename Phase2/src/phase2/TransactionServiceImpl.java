@@ -23,7 +23,7 @@ public class TransactionServiceImpl extends UnicastRemoteObject implements Trans
         if (bankService == null) {
             return new ArrayList<>();
         }
-        
+
         Account account = bankService.getAccount(username);
         if (account != null) {
             return account.getTransactionHistory();
@@ -47,14 +47,12 @@ public class TransactionServiceImpl extends UnicastRemoteObject implements Trans
         for (Map.Entry<String, ClientCallback> entry : registeredClients.entrySet()) {
             String clientUsername = entry.getKey();
             ClientCallback callback = entry.getValue();
-            
-            // Don't send to the user who made the action
+
             if (!clientUsername.equalsIgnoreCase(excludeUsername)) {
                 try {
                     callback.notifyUpdate(message);
                 } catch (RemoteException e) {
                     System.err.println("Failed to notify client " + clientUsername + ": " + e.getMessage());
-                    // Remove disconnected client
                     registeredClients.remove(clientUsername);
                 }
             }
